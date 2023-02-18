@@ -28,7 +28,6 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
         case candle
         case scatter
     }
-    
     open override func initialize()
     {
         super.initialize()
@@ -39,7 +38,6 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
         self.highlightFullBarEnabled = true
         
         _fillFormatter = DefaultFillFormatter()
-        
         renderer = CombinedChartRenderer(chart: self, animator: chartAnimator, viewPortHandler: viewPortHandler)
     }
     

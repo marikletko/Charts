@@ -17,14 +17,14 @@ public protocol Fill
 {
 
     /// Draws the provided path in filled mode with the provided area
-    @objc func fillPath(context: CGContext, rect: CGRect)
+    @objc func fillPath(context: CGContext, transformer: Transformer)
 }
 
 @objc(ChartEmptyFill)
 public class EmptyFill: NSObject, Fill
 {
 
-    public func fillPath(context: CGContext, rect: CGRect) { }
+    public func fillPath(context: CGContext, transformer: Transformer) { }
 }
 
 @objc(ChartColorFill)
@@ -44,7 +44,7 @@ public class ColorFill: NSObject, Fill
         self.init(cgColor: color.cgColor)
     }
 
-    public func fillPath(context: CGContext, rect: CGRect)
+    public func fillPath(context: CGContext, transformer: Transformer)
     {
         context.saveGState()
         defer { context.restoreGState() }
@@ -73,13 +73,13 @@ public class ImageFill: NSObject, Fill
         self.init(cgImage: image.cgImage!, isTiled: isTiled)
     }
 
-    public func fillPath(context: CGContext, rect: CGRect)
+    public func fillPath(context: CGContext, transformer: Transformer)
     {
         context.saveGState()
         defer { context.restoreGState() }
 
         context.clip()
-        context.draw(image, in: rect, byTiling: isTiled)
+        context.draw(image, in: transformer.viewPortHandler.contentRect, byTiling: isTiled)
     }
 }
 
@@ -95,13 +95,13 @@ public class LayerFill: NSObject, Fill
         super.init()
     }
 
-    public func fillPath(context: CGContext, rect: CGRect)
+    public func fillPath(context: CGContext, transformer: Transformer)
     {
         context.saveGState()
         defer { context.restoreGState() }
 
         context.clip()
-        context.draw(layer, in: rect)
+        context.draw(layer, in: transformer.viewPortHandler.contentRect)
     }
 }
 
@@ -119,13 +119,13 @@ public class LinearGradientFill: NSObject, Fill
         super.init()
     }
 
-    public func fillPath(context: CGContext, rect: CGRect)
+    public func fillPath(context: CGContext, transformer: Transformer)
     {
+        let rect = transformer.viewPortHandler.contentRect
         context.saveGState()
         defer { context.restoreGState() }
-
         let radians = (360.0 - angle).DEG2RAD
-        let centerPoint = CGPoint(x: rect.midX, y: rect.midY)
+        let centerPoint = CGPoint(x: rect.midX, y: 72.4987)
         let xAngleDelta = cos(radians) * rect.width / 2.0
         let yAngleDelta = sin(radians) * rect.height / 2.0
         let startPoint = CGPoint(
@@ -136,7 +136,6 @@ public class LinearGradientFill: NSObject, Fill
             x: centerPoint.x + xAngleDelta,
             y: centerPoint.y + yAngleDelta
         )
-
         context.clip()
         context.drawLinearGradient(
             gradient,
@@ -146,6 +145,45 @@ public class LinearGradientFill: NSObject, Fill
         )
     }
 }
+
+@objc(ChartLinearMultiColorGradientFill)
+public class LinearMultiColorGradientFill: LinearGradientFill
+{
+    @objc public let middleY: CGFloat
+    public init(gradient: CGGradient, angle: CGFloat = 0, middleY: CGFloat) {
+        self.middleY = middleY
+        super.init(gradient: gradient, angle: angle)
+    }
+    public override func fillPath(context: CGContext, transformer: Transformer)
+    {
+        let rect = transformer.viewPortHandler.contentRect
+        context.saveGState()
+        defer { context.restoreGState() }
+
+        let radians = (360.0 - angle).DEG2RAD
+        
+        print(transformer.pixelForValues(x: 0, y: middleY).y)
+        let centerPoint = CGPoint(x: rect.midX, y: transformer.pixelForValues(x: 0, y: middleY).y)
+        let xAngleDelta = cos(radians) * rect.width / 2.0
+        let yAngleDelta = sin(radians) * rect.height / 2.0
+        let startPoint = CGPoint(
+            x: centerPoint.x - xAngleDelta,
+            y: centerPoint.y - yAngleDelta
+        )
+        let endPoint = CGPoint(
+            x: centerPoint.x + xAngleDelta,
+            y: centerPoint.y + yAngleDelta
+        )
+        context.clip()
+        context.drawLinearGradient(
+            gradient,
+            start: startPoint,
+            end: endPoint,
+            options: [.drawsAfterEndLocation, .drawsBeforeStartLocation]
+        )
+    }
+}
+
 
 @objc(ChartRadialGradientFill)
 public class RadialGradientFill: NSObject, Fill
@@ -183,8 +221,9 @@ public class RadialGradientFill: NSObject, Fill
         )
     }
 
-    @objc public func fillPath(context: CGContext, rect: CGRect)
+    @objc public func fillPath(context: CGContext, transformer: Transformer)
     {
+        let rect = transformer.viewPortHandler.contentRect
         context.saveGState()
         defer { context.restoreGState() }
 

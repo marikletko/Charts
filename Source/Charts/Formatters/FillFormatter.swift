@@ -18,4 +18,6 @@ public protocol FillFormatter
 {
     /// - Returns: The vertical (y-axis) position where the filled-line of the LineDataSet should end.
     func getFillLinePosition(dataSet: LineChartDataSetProtocol, dataProvider: LineChartDataProvider) -> CGFloat
+    @objc optional func getFillAboveColor() -> UIColor
+    @objc optional func getFillBelowColor() -> UIColor
 }

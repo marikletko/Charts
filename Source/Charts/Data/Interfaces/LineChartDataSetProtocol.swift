@@ -35,6 +35,7 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
 
     /// The points where gradient should change color
     var gradientPositions: [CGFloat]? { get set }
+    var belowFill: Fill? { get set }
 
     /// The radius of the drawn circles.
     var circleRadius: CGFloat { get set }
@@ -83,4 +84,6 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
     
     /// Sets a custom FillFormatterProtocol to the chart that handles the position of the filled-line for each DataSet. Set this to null to use the default logic.
     var fillFormatter: FillFormatter? { get set }
+    
+    var yValueOfColorChangeBorder: NSNumber? { get set }
 }

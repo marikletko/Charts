@@ -30,8 +30,21 @@ open class LineRadarRenderer: LineScatterCandleRadarRenderer
         
         // filled is usually drawn with less alpha
         context.setAlpha(fillAlpha)
+        fill.fillPath(context: context, transformer: .init(viewPortHandler: viewPortHandler))
         
-        fill.fillPath(context: context, rect: viewPortHandler.contentRect)
+        context.restoreGState()
+    }
+    
+    @objc open func drawFilledPath(context: CGContext, path: CGPath, fill: Fill, fillAlpha: CGFloat, transformer: Transformer)
+    {
+        
+        context.saveGState()
+        context.beginPath()
+        context.addPath(path)
+        
+        // filled is usually drawn with less alpha
+        context.setAlpha(fillAlpha)
+        fill.fillPath(context: context, transformer: transformer)
         
         context.restoreGState()
     }
