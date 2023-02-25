@@ -722,7 +722,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     if _outerScrollView !== nil
                     {
                         // Prevent the parent scroll view from scrolling
-                        _outerScrollView?.nsuiIsScrollEnabled = false
+                        _outerScrollView?.panGestureRecognizer.isEnabled = false
                     }
                 }
                 
@@ -735,7 +735,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 _isDragging = false
                 
                 // Prevent the parent scroll view from scrolling
-                _outerScrollView?.nsuiIsScrollEnabled = false
+                _outerScrollView?.panGestureRecognizer.isEnabled = false
+               // _outerScrollView?.isScrollEnabled = false
 
             }
         }

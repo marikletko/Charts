@@ -58,7 +58,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             offsetsCalculated = false
 
             guard let data = data else { return }
-
+            data.yMax
             // calculate how many digits are needed
             setupDefaultFormatter(min: data.yMin, max: data.yMax)
 

@@ -162,7 +162,7 @@ public class LinearMultiColorGradientFill: LinearGradientFill
 
         let radians = (360.0 - angle).DEG2RAD
         
-        print(transformer.pixelForValues(x: 0, y: middleY).y)
+      
         let centerPoint = CGPoint(x: rect.midX, y: transformer.pixelForValues(x: 0, y: middleY).y)
         let xAngleDelta = cos(radians) * rect.width / 2.0
         let yAngleDelta = sin(radians) * rect.height / 2.0

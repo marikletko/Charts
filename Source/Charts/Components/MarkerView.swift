@@ -26,7 +26,6 @@ open class MarkerView: NSUIView, Marker
     open func offsetForDrawing(atPoint point: CGPoint) -> CGPoint
     {
         guard let chart = chartView else { return self.offset }
-        
         var offset = self.offset
         
         let width = self.bounds.size.width
@@ -91,9 +90,45 @@ open class MarkerView: NSUIView, Marker
         {
             return loadedObjects?[0] as? MarkerView
         }
-        
         return nil
         #endif
     }
     
+}
+
+open class ColoredLineMarkerView: MarkerView {
+    open var positiveColor: UIColor
+    open var negativeColor: UIColor
+    open var value: Double
+    
+    required public init(positiveColor: UIColor, negativeColor: UIColor, value: Double, frame: CGRect) {
+        self.value = value
+        self.negativeColor = negativeColor
+        self.positiveColor = positiveColor
+        super.init(frame: frame)
+    }
+
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override open func refreshContent(entry: ChartDataEntry, highlight: Highlight) {
+        if let data = entry as? CandleChartDataEntry {
+            if data.close > data.open {
+                self.backgroundColor = positiveColor
+            } else if data.close < data.open {
+                self.backgroundColor = negativeColor
+            } else {
+                self.backgroundColor = .darkGray
+            }
+            return
+        }
+        if highlight.y > value {
+            self.backgroundColor = positiveColor
+        } else if highlight.y < value {
+            self.backgroundColor = negativeColor
+        } else {
+            self.backgroundColor = .darkGray
+        }
+    }
 }

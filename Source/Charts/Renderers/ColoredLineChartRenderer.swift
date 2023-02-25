@@ -28,13 +28,13 @@ open class ColoredLineChartRenderer: LineChartRenderer {
         var strokeColor: UIColor
         // var fillColor: UIColor { return strokeColor.withAlphaComponent(0.2) }
         
-        static func topBottom(min: Double, max: Double) -> [ColorSection] {
+        static func topBottom(min: Double, max: Double, aboveColor: UIColor, belowColor: UIColor) -> [ColorSection] {
             return [ColorSection(min:  min,
                                  max: CGFloat(max + 1),
-                                 strokeColor: .green),
+                                 strokeColor: aboveColor),
                     ColorSection(min: 0,
                                  max: CGFloat(min),
-                                 strokeColor: .red)
+                                 strokeColor: belowColor)
             ]
         }
     }
@@ -108,16 +108,16 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 .applying(valueToPixelMatrix)
             path.addLine(to: endPoint)
         }
-        
+        dataSet.fill
         let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
         let minValue = dataSet.yValueOfColorChangeBorder != nil ? CGFloat(dataSet.yValueOfColorChangeBorder!.doubleValue) : dataSet.yMin
-        for band in ColorSection.topBottom(min: minValue, max: dataSet.yMax) {
+        for band in ColorSection.topBottom(min: minValue, max: dataSet.yMax, aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red) {
             let y0 = max(CGPoint(x: 0, y: band.min).applying(valueToPixelMatrix).y, 0)
-            let y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
+            var y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
             context.saveGState()
             context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
             band.strokeColor.setStroke()
-            context.setLineWidth(2)
+            context.setLineWidth(dataSet.lineWidth)
             context.addPath(path)
             context.strokePath()
             context.restoreGState()
@@ -168,13 +168,13 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             }
             
             let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
-            for band in ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax) {
+            for band in ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red) {
                 let y0 = max(CGPoint(x: 0, y: band.min).applying(valueToPixelMatrix).y, 0)
                 let y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
                 context.saveGState()    // ; do {
                 context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
                 band.strokeColor.setStroke()
-                context.setLineWidth(2)
+                context.setLineWidth(dataSet.lineWidth)
                 context.addPath(cubicDrawPath)
                 context.strokePath()
                 context.restoreGState()
@@ -187,14 +187,13 @@ open class ColoredLineChartRenderer: LineChartRenderer {
     {
         guard let dataProvider = dataProvider else { return }
         
-        
         if let aboveColor = dataSet.fillFormatter?.getFillAboveColor?(), let belowColor = dataSet.fillFormatter?.getFillBelowColor?() {
             let filledAbove = generateFilledPath(
                 dataSet: dataSet,
                 fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
                 bounds: bounds,
                 matrix: trans.valueToPixelMatrix, aboveFillMin: true)
-            
+
             let filledBelow = generateFilledPath(
                 dataSet: dataSet,
                 fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
@@ -213,50 +212,97 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             }
         }
     }
-    
+    /// Generates the path that is used for filled drawing.
     private func generateFilledPath(dataSet: LineChartDataSetProtocol, fillMin: CGFloat, bounds: XBounds, matrix: CGAffineTransform, aboveFillMin: Bool) -> CGPath
     {
         let phaseY = animator.phaseY
         let isDrawSteppedEnabled = dataSet.mode == .stepped
         let matrix = matrix
-        
+
         var e: ChartDataEntry!
-        
+
         let filled = CGMutablePath()
-        
+
         e = dataSet.entryForIndex(bounds.min)
         if e != nil
         {
             filled.move(to: CGPoint(x: CGFloat(e.x), y: fillMin), transform: matrix)
             filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
         }
-        
+
         // create a new path
-        for x in stride(from: (bounds.min + 1), through: bounds.range + bounds.min, by: 1)
+        for x in stride(from: (bounds.min), through: bounds.range + bounds.min, by: 1)
         {
             guard let e = dataSet.entryForIndex(x) else { continue }
-            
+           
             if isDrawSteppedEnabled
             {
                 guard let ePrev = dataSet.entryForIndex(x-1) else { continue }
                 filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(ePrev.y * phaseY)), transform: matrix)
             }
-            
             if aboveFillMin {
+                guard let ePrev = dataSet.entryForIndex(x-1), let eNext = dataSet.entryForIndex(x + 1) else {
+                    if e.y > fillMin {
+                        filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+                    } else {
+                        filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                    }
+                    continue
+                }
+                
                 if e.y > fillMin {
                     filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+                    if eNext.y < fillMin {
+                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        continue
+                    } else if ePrev.y < fillMin {
+                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        continue
+                    }
                 } else {
-                    filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin)), transform: matrix)
+                    if eNext.y > fillMin {
+                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        continue
+                    }
+                    print("x: \(e.x), y: \(e.y), (6)")
+                    filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
                 }
             } else {
+                guard let ePrev = dataSet.entryForIndex(x-1), let eNext = dataSet.entryForIndex(x + 1) else {
+                    if e.y < fillMin {
+                        filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+                    } else {
+                        filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                    }
+                    continue
+                }
                 if e.y < fillMin {
                     filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+                    if eNext.y > fillMin {
+                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        continue
+                    } else if ePrev.y > fillMin {
+                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        continue
+                    }
                 } else {
-                    filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin)), transform: matrix)
+                    if eNext.y < fillMin {
+                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        continue
+                    }
+                    print("x: \(e.x), y: \(e.y), (6)")
+                    filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
                 }
+//                }
             }
         }
-        
+
         // close up
         e = dataSet.entryForIndex(bounds.range + bounds.min)
         if e != nil
@@ -264,10 +310,52 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             filled.addLine(to: CGPoint(x: CGFloat(e.x), y: fillMin), transform: matrix)
         }
         filled.closeSubpath()
-        
+
         return filled
     }
     
+//    private func generateFilledPath(dataSet: LineChartDataSetProtocol, fillMin: CGFloat, bounds: XBounds, matrix: CGAffineTransform, aboveFillMin: Bool) -> CGPath
+//    {
+//        let phaseY = animator.phaseY
+//        let isDrawSteppedEnabled = dataSet.mode == .stepped
+//        let matrix = matrix
+//
+//        var e: ChartDataEntry!
+//
+//        let filled = CGMutablePath()
+//        e = dataSet.entryForIndex(bounds.min)
+//        if e != nil
+//        {
+//            filled.move(to: CGPoint(x: CGFloat(e.x), y: fillMin), transform: matrix)
+//            filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+//        }
+//
+//        // create a new path
+//        for x in stride(from: (bounds.min + 1), through: bounds.range + bounds.min, by: 1)
+//        {
+//            guard let e = dataSet.entryForIndex(x) else { continue }
+//
+//            if isDrawSteppedEnabled
+//            {
+//                guard let ePrev = dataSet.entryForIndex(x-1) else { continue }
+//                filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(ePrev.y * phaseY)), transform: matrix)
+//            }
+//
+//            filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+//
+//        }
+//
+//        // close up
+//        e = dataSet.entryForIndex(bounds.range + bounds.min)
+//        if e != nil
+//        {
+//            filled.addLine(to: CGPoint(x: CGFloat(e.x), y: fillMin), transform: matrix)
+//        }
+//        filled.closeSubpath()
+//
+//        return filled
+//    }
+//
     
     @objc open override func drawCubicBezier(context: CGContext, dataSet: LineChartDataSetProtocol) {
         guard let dataProvider = dataProvider else { return }
@@ -338,13 +426,13 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             }
             
             let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
-            for band in ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax) {
+            for band in ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red) {
                 let y0 = max(CGPoint(x: 0, y: band.min).applying(valueToPixelMatrix).y, 0)
                 let y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
                 context.saveGState()    // ; do {
                 context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
                 band.strokeColor.setStroke()
-                context.setLineWidth(2)
+                context.setLineWidth(dataSet.lineWidth)
                 context.addPath(cubicPath)
                 context.strokePath()
                 context.restoreGState()

@@ -305,6 +305,14 @@ open class YAxisRenderer: NSObject, AxisRenderer
 
             switch l.labelPosition
             {
+            case .middleRight:
+                align = .right
+                point = CGPoint(x: viewPortHandler.contentLeft - xOffset,
+                                y: position.y - (labelLineHeight / 2))
+            case .middleLeft:
+                align = .left
+                point = CGPoint(x: viewPortHandler.contentLeft + xOffset,
+                                y: position.y - (labelLineHeight / 2))
             case .rightTop:
                 align = .right
                 point = CGPoint(x: viewPortHandler.contentRight - xOffset,
@@ -329,7 +337,7 @@ open class YAxisRenderer: NSObject, AxisRenderer
             context.drawText(label,
                              at: point,
                              align: align,
-                             attributes: [.font: l.valueFont, .foregroundColor: l.valueTextColor])
+                             attributes: [.font: l.valueFont, .foregroundColor: l.valueTextColor, .backgroundColor: l.valueBackgroundColor])
         }
     }
 
