@@ -125,7 +125,7 @@ public class LinearGradientFill: NSObject, Fill
         context.saveGState()
         defer { context.restoreGState() }
         let radians = (360.0 - angle).DEG2RAD
-        let centerPoint = CGPoint(x: rect.midX, y: 72.4987)
+        let centerPoint = CGPoint(x: rect.midX, y: rect.midY)
         let xAngleDelta = cos(radians) * rect.width / 2.0
         let yAngleDelta = sin(radians) * rect.height / 2.0
         let startPoint = CGPoint(

@@ -80,6 +80,7 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     
     /// The hole radius of the drawn circles
     open var circleHoleRadius = CGFloat(4.0)
+    open var isMultiColorFill: Bool = false
     
     open var circleColors = [NSUIColor]()
     

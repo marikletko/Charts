@@ -96,6 +96,20 @@ open class MarkerView: NSUIView, Marker
     
 }
 
+open class DefaultLineMarkerView: MarkerView {
+    required public init(color: UIColor, frame: CGRect) {
+        super.init(frame: frame)
+        let value = frame.height / 2
+        self.offset = .init(x: -value, y: -value)
+        self.layer.cornerRadius = value
+        self.backgroundColor = color
+    }
+
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 open class ColoredLineMarkerView: MarkerView {
     open var positiveColor: UIColor
     open var negativeColor: UIColor
@@ -106,6 +120,9 @@ open class ColoredLineMarkerView: MarkerView {
         self.negativeColor = negativeColor
         self.positiveColor = positiveColor
         super.init(frame: frame)
+        let value = frame.height / 2
+        self.offset = .init(x: -value, y: -value)
+        self.layer.cornerRadius = value
     }
 
     required public init?(coder: NSCoder) {

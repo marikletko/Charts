@@ -40,6 +40,10 @@ open class ColoredLineChartRenderer: LineChartRenderer {
     }
     
     @objc open override func drawLinear(context: CGContext, dataSet: LineChartDataSetProtocol) {
+        guard dataSet.isMultiColorFill else {
+            super.drawLinear(context: context, dataSet: dataSet)
+            return
+        }
         guard let dataProvider = dataProvider else { return }
         
         let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
@@ -125,6 +129,10 @@ open class ColoredLineChartRenderer: LineChartRenderer {
     }
     
     @objc open override func drawHorizontalBezier(context: CGContext, dataSet: LineChartDataSetProtocol) {
+        guard dataSet.isMultiColorFill else {
+            super.drawHorizontalBezier(context: context, dataSet: dataSet)
+            return
+        }
         guard let dataProvider = dataProvider else { return }
         
         let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
@@ -185,6 +193,10 @@ open class ColoredLineChartRenderer: LineChartRenderer {
     
     open override func drawLinearFill(context: CGContext, dataSet: LineChartDataSetProtocol, trans: Transformer, bounds: XBounds)
     {
+        guard dataSet.isMultiColorFill else {
+            super.drawLinearFill(context: context, dataSet: dataSet, trans: trans, bounds: bounds)
+            return
+        }
         guard let dataProvider = dataProvider else { return }
         
         if let aboveColor = dataSet.fillFormatter?.getFillAboveColor?(), let belowColor = dataSet.fillFormatter?.getFillBelowColor?() {
