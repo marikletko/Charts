@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 open class ColoredLineChartRenderer: LineChartRenderer {
     //
@@ -25,10 +26,10 @@ open class ColoredLineChartRenderer: LineChartRenderer {
         // section of graph with specific color
         var min: CGFloat // In data geometry
         var max: CGFloat // In data geometry
-        var strokeColor: UIColor
+        var strokeColor: NSUIColor
         // var fillColor: UIColor { return strokeColor.withAlphaComponent(0.2) }
         
-        static func topBottom(min: Double, max: Double, aboveColor: UIColor, belowColor: UIColor) -> [ColorSection] {
+        static func topBottom(min: Double, max: Double, aboveColor: NSUIColor, belowColor: NSUIColor) -> [ColorSection] {
             return [ColorSection(min:  min,
                                  max: CGFloat(max + 1),
                                  strokeColor: aboveColor),
