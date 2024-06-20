@@ -173,7 +173,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         super.draw(rect)
 
         guard data != nil, let renderer = renderer else { return }
-        
+
         let optionalContext = NSUIGraphicsGetCurrentContext()
         guard let context = optionalContext else { return }
 

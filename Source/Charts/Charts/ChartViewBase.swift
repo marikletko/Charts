@@ -280,6 +280,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             return
         }
         
+        
         if !offsetsCalculated
         {
             calculateOffsets()

@@ -77,6 +77,7 @@ open class LineChartRenderer: LineRadarRenderer
             drawHorizontalBezier(context: context, dataSet: dataSet)
         }
         
+        
         context.restoreGState()
     }
 
@@ -316,9 +317,10 @@ open class LineChartRenderer: LineRadarRenderer
         {
             drawLinearFill(context: context, dataSet: dataSet, trans: trans, bounds: _xBounds)
         }
-        
         context.saveGState()
-        defer { context.restoreGState() }
+        defer { 
+            context.restoreGState()
+        }
 
         // more than 1 color
         if dataSet.colors.count > 1, !dataSet.isDrawLineWithGradientEnabled

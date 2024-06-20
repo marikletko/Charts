@@ -114,7 +114,7 @@ class LineChart1ViewController: DemoBaseViewController {
             return ChartDataEntry(x: Double(i), y: val, icon: #imageLiteral(resourceName: "icon"))
         }
 
-        let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
+        let set1 = LineChartDataSet(entries: Array(values.prefix(10)), label: "DataSet 1")
         set1.drawIconsEnabled = false
         setup(set1)
 
@@ -125,10 +125,22 @@ class LineChart1ViewController: DemoBaseViewController {
         let gradient = CGGradient(colorsSpace: nil, colors: gradientColors as CFArray, locations: nil)!
 
         set1.fillAlpha = 1
+        set1.backgroundColor = UIColor.orange.withAlphaComponent(0.5)
         set1.fill = LinearGradientFill(gradient: gradient, angle: 90)
         set1.drawFilledEnabled = true
+        
+        
+        let set2 = LineChartDataSet(entries: Array(values.prefix(20).suffix(10)), label: "DataSet 1")
+        set2.drawIconsEnabled = false
+        setup(set2)
 
-        let data = LineChartData(dataSet: set1)
+
+        set2.fillAlpha = 1
+        set2.backgroundColor = UIColor.blue.withAlphaComponent(0.5)
+        set2.fill = LinearGradientFill(gradient: gradient, angle: 90)
+        set2.drawFilledEnabled = true
+
+        let data = LineChartData(dataSets: [set1, set2])
 
         chartView.data = data
     }

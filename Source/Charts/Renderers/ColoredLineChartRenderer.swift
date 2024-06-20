@@ -113,12 +113,11 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 .applying(valueToPixelMatrix)
             path.addLine(to: endPoint)
         }
-        dataSet.fill
         let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
         let minValue = dataSet.yValueOfColorChangeBorder != nil ? CGFloat(dataSet.yValueOfColorChangeBorder!.doubleValue) : dataSet.yMin
         for band in ColorSection.topBottom(min: minValue, max: dataSet.yMax, aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red) {
             let y0 = max(CGPoint(x: 0, y: band.min).applying(valueToPixelMatrix).y, 0)
-            var y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
+            let y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
             context.saveGState()
             context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
             band.strokeColor.setStroke()
@@ -126,6 +125,30 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             context.addPath(path)
             context.strokePath()
             context.restoreGState()
+        }
+    }
+    
+    open override func drawDataSet(context: CGContext, dataSet: any LineChartDataSetProtocol) {
+        super.drawDataSet(context: context, dataSet: dataSet)
+        if let backColor = dataSet.backgroundColor, let trans = dataProvider?.getTransformer(forAxis: .right), let range = dataSet.backgroundFilledXRange, range.count % 2 == 0 {
+            for i in 0..<(range.count / 2) {
+                var _dataSetShadowRectBuffer: CGRect = CGRect()
+                
+                var positionX = CGPoint.zero
+                positionX = .init(x: range[i], y: 0)
+                trans.pointValueToPixel(&positionX)
+                
+                var positionXMax = CGPoint.zero
+                positionXMax = .init(x: range[i + 1], y: 0)
+                trans.pointValueToPixel(&positionXMax)
+                _dataSetShadowRectBuffer.origin.x = positionX.x
+                _dataSetShadowRectBuffer.size.width = positionXMax.x - positionX.x
+                _dataSetShadowRectBuffer.origin.y = viewPortHandler.contentTop
+                _dataSetShadowRectBuffer.size.height = viewPortHandler.chartHeight
+                
+                context.setFillColor(backColor.cgColor)
+                context.fill(_dataSetShadowRectBuffer)
+            }
         }
     }
     

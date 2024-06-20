@@ -49,6 +49,10 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     /// The drawing mode for this line dataset
     ///
     /// **default**: Linear
+    ///
+    ///
+    open var backgroundColor: NSUIColor?
+    open var backgroundFilledXRange: [Int]?
     open var mode: Mode = Mode.linear
     
     private var _cubicIntensity = CGFloat(0.2)
@@ -77,7 +81,7 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     
     /// The radius of the drawn circles.
     open var circleRadius = CGFloat(8.0)
-    
+
     /// The hole radius of the drawn circles
     open var circleHoleRadius = CGFloat(4.0)
     open var isMultiColorFill: Bool = false
