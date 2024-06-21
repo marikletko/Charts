@@ -27,7 +27,9 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
     
     /// Intensity for cubic lines (min = 0.05, max = 1)
     ///
+    ///
     var backgroundColor: NSUIColor? { get set }
+    var backgroundFilledImage: NSUIImage? { get set }
     var backgroundFilledXRange: [Int]? { get set }
     ///
     /// **default**: 0.2

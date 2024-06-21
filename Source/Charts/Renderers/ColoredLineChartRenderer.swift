@@ -130,8 +130,8 @@ open class ColoredLineChartRenderer: LineChartRenderer {
     
     open override func drawDataSet(context: CGContext, dataSet: any LineChartDataSetProtocol) {
         super.drawDataSet(context: context, dataSet: dataSet)
-        if let backColor = dataSet.backgroundColor, let trans = dataProvider?.getTransformer(forAxis: .right), let range = dataSet.backgroundFilledXRange, range.count % 2 == 0 {
-            for i in 0..<(range.count / 2) {
+        if let backColor = dataSet.backgroundColor, let trans = dataProvider?.getTransformer(forAxis: .right), let range = dataSet.backgroundFilledXRange, range.count == 2 {
+            for i in 0..<1 {
                 var _dataSetShadowRectBuffer: CGRect = CGRect()
                 
                 var positionX = CGPoint.zero
@@ -148,6 +148,10 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 
                 context.setFillColor(backColor.cgColor)
                 context.fill(_dataSetShadowRectBuffer)
+                
+                if let image = dataSet.backgroundFilledImage, let cgImage = image.cgImage {
+                    context.drawFlipped(cgImage, in: .init(x: positionX.x + 8, y: viewPortHandler.contentTop + 8, width: 12, height: 12))
+                }
             }
         }
     }

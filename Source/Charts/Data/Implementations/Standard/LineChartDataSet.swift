@@ -15,6 +15,7 @@ import CoreGraphics
 
 open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
 {
+    
     @objc(LineChartMode)
     public enum Mode: Int
     {
@@ -51,6 +52,8 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     /// **default**: Linear
     ///
     ///
+    ///
+    open var backgroundFilledImage: NSUIImage?
     open var backgroundColor: NSUIColor?
     open var backgroundFilledXRange: [Int]?
     open var mode: Mode = Mode.linear
