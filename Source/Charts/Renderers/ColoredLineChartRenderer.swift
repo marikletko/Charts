@@ -128,34 +128,6 @@ open class ColoredLineChartRenderer: LineChartRenderer {
         }
     }
     
-    open override func drawDataSet(context: CGContext, dataSet: any LineChartDataSetProtocol) {
-        super.drawDataSet(context: context, dataSet: dataSet)
-        if let backColor = dataSet.backgroundColor, let trans = dataProvider?.getTransformer(forAxis: .right), let range = dataSet.backgroundFilledXRange, range.count == 2 {
-            for i in 0..<1 {
-                var _dataSetShadowRectBuffer: CGRect = CGRect()
-                
-                var positionX = CGPoint.zero
-                positionX = .init(x: range[i], y: 0)
-                trans.pointValueToPixel(&positionX)
-                
-                var positionXMax = CGPoint.zero
-                positionXMax = .init(x: range[i + 1], y: 0)
-                trans.pointValueToPixel(&positionXMax)
-                _dataSetShadowRectBuffer.origin.x = positionX.x
-                _dataSetShadowRectBuffer.size.width = positionXMax.x - positionX.x
-                _dataSetShadowRectBuffer.origin.y = viewPortHandler.contentTop
-                _dataSetShadowRectBuffer.size.height = viewPortHandler.chartHeight
-                
-                context.setFillColor(backColor.cgColor)
-                context.fill(_dataSetShadowRectBuffer)
-                
-                if let image = dataSet.backgroundFilledImage, let cgImage = image.cgImage {
-                    context.drawFlipped(cgImage, in: .init(x: positionX.x + 8, y: viewPortHandler.contentTop + 8, width: 12, height: 12))
-                }
-            }
-        }
-    }
-    
     @objc open override func drawHorizontalBezier(context: CGContext, dataSet: LineChartDataSetProtocol) {
         guard dataSet.isMultiColorFill else {
             super.drawHorizontalBezier(context: context, dataSet: dataSet)
@@ -293,17 +265,23 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 if e.y > fillMin {
                     filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
                     if eNext.y < fillMin {
-                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        let a = (eNext.y - e.y) / (eNext.x - e.x)
+                        let b = e.y - (a * e.x)
+                        let xValue = (fillMin - b) / a
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     } else if ePrev.y < fillMin {
-                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        let a = (eNext.y - e.y) / (eNext.x - e.x)
+                        let b = e.y - (a * e.x)
+                        let xValue = (fillMin - b) / a
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     }
                 } else {
                     if eNext.y > fillMin {
-                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        let a = (eNext.y - e.y) / (eNext.x - e.x)
+                        let b = e.y - (a * e.x)
+                        let xValue = (fillMin - b) / a
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     }
@@ -322,17 +300,23 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 if e.y < fillMin {
                     filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
                     if eNext.y > fillMin {
-                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        let a = (eNext.y - e.y) / (eNext.x - e.x)
+                        let b = e.y - (a * e.x)
+                        let xValue = (fillMin - b) / a
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     } else if ePrev.y > fillMin {
-                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        let a = (eNext.y - e.y) / (eNext.x - e.x)
+                        let b = e.y - (a * e.x)
+                        let xValue = (fillMin - b) / a
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     }
                 } else {
                     if eNext.y < fillMin {
-                        let xValue = (fillMin - (e.y - (e.x * (eNext.y - e.y)))) / (eNext.y - e.y)
+                        let a = (eNext.y - e.y) / (eNext.x - e.x)
+                        let b = e.y - (a * e.x)
+                        let xValue = (fillMin - b) / a
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     }
