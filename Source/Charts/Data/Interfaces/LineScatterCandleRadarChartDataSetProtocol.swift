@@ -17,7 +17,9 @@ public protocol LineScatterCandleRadarChartDataSetProtocol: BarLineScatterCandle
     // MARK: - Data functions and accessors
     
     // MARK: - Styling functions and accessors
-    
+    var backgroundColor: NSUIColor? { get set }
+    var backgroundFilledImage: NSUIImage? { get set }
+    var backgroundFilledXRange: [Int]? { get set }
     /// Enables / disables the horizontal highlight-indicator. If disabled, the indicator is not drawn.
     var drawHorizontalHighlightIndicatorEnabled: Bool { get set }
     

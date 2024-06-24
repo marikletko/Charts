@@ -77,7 +77,7 @@ open class LineChartRenderer: LineRadarRenderer
             drawHorizontalBezier(context: context, dataSet: dataSet)
         }
         
-        
+        self.drawBackgroundFiller(context: context, dataProvider: self.dataProvider, dataSet: dataSet)
         context.restoreGState()
     }
 

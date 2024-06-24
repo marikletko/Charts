@@ -53,9 +53,7 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     ///
     ///
     ///
-    open var backgroundFilledImage: NSUIImage?
-    open var backgroundColor: NSUIColor?
-    open var backgroundFilledXRange: [Int]?
+
     open var mode: Mode = Mode.linear
     
     private var _cubicIntensity = CGFloat(0.2)

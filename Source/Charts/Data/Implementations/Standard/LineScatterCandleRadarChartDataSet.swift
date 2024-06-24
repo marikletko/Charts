@@ -17,7 +17,9 @@ open class LineScatterCandleRadarChartDataSet: BarLineScatterCandleBubbleChartDa
     // MARK: - Data functions and accessors
     
     // MARK: - Styling functions and accessors
-    
+    open var backgroundFilledImage: NSUIImage?
+    open var backgroundColor: NSUIColor?
+    open var backgroundFilledXRange: [Int]?
     /// Enables / disables the horizontal highlight-indicator. If disabled, the indicator is not drawn.
     open var drawHorizontalHighlightIndicatorEnabled = true
     

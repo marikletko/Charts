@@ -41,6 +41,7 @@ open class CandleStickChartRenderer: LineScatterCandleRadarRenderer
         for case let set as CandleChartDataSetProtocol in (candleData as ChartData) where set.isVisible
         {
             drawDataSet(context: context, dataSet: set)
+            drawBackgroundFiller(context: context, dataProvider: dataProvider, dataSet: set)
         }
     }
     
