@@ -285,7 +285,6 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     }
-                    print("x: \(e.x), y: \(e.y), (6)")
                     filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
                 }
             } else {
@@ -320,7 +319,6 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     }
-                    print("x: \(e.x), y: \(e.y), (6)")
                     filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
                 }
 //                }

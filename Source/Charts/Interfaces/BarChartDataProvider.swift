@@ -17,6 +17,7 @@ public protocol BarChartDataProvider: BarLineScatterCandleBubbleChartDataProvide
 {
     var barData: BarChartData? { get }
     
+    var cornerRadius: CGFloat { get }
     var isDrawBarShadowEnabled: Bool { get }
     var isDrawValueAboveBarEnabled: Bool { get }
     var isHighlightFullBarEnabled: Bool { get }

@@ -355,6 +355,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
             }
         }
         
+
+        
         let isSingleColor = dataSet.colors.count == 1
         
         if isSingleColor
@@ -379,7 +381,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
             
-            context.fill(barRect)
+         
+            if dataProvider.cornerRadius != 0.0
+            {
+                let rectCorners: UIRectCorner = [.topLeft, .topRight]
+                let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: rectCorners, cornerRadii: CGSize(width: dataProvider.cornerRadius, height: dataProvider.cornerRadius))
+                context.addPath(bezierPath.cgPath)
+                context.drawPath(using: .fill)
+            } else {
+                context.fill(barRect)
+            }
             
             if drawBorder
             {
@@ -387,7 +398,9 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 context.setLineWidth(borderWidth)
                 context.stroke(barRect)
             }
+            
 
+            
             // Create and append the corresponding accessibility element to accessibilityOrderedElements
             if let chart = dataProvider as? BarChartView
             {
