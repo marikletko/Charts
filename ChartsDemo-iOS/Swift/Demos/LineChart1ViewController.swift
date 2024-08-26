@@ -45,6 +45,8 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.dragEnabled = true
         chartView.setScaleEnabled(true)
         chartView.pinchZoomEnabled = true
+        
+      
 
         // x-axis limit line
         let llXAxis = ChartLimitLine(limit: 10, label: "Index 10")
@@ -89,6 +91,7 @@ class LineChart1ViewController: DemoBaseViewController {
         marker.chartView = chartView
         marker.minimumSize = CGSize(width: 80, height: 40)
         chartView.marker = marker
+        chartView.alwaysExistingMarker = marker
 
         chartView.legend.form = .line
 
@@ -117,6 +120,8 @@ class LineChart1ViewController: DemoBaseViewController {
         let set1 = LineChartDataSet(entries: Array(values.prefix(10)), label: "DataSet 1")
         set1.drawIconsEnabled = false
         setup(set1)
+        
+
 
         let value = ChartDataEntry(x: Double(3), y: 3)
         set1.addEntryOrdered(value)
@@ -139,7 +144,10 @@ class LineChart1ViewController: DemoBaseViewController {
         set2.backgroundColor = UIColor.blue.withAlphaComponent(0.5)
         set2.fill = LinearGradientFill(gradient: gradient, angle: 90)
         set2.drawFilledEnabled = true
-
+        
+        let lastValue1 = values.prefix(10).last
+        let lastValue2 = values.prefix(20).suffix(10).last
+        chartView.alwaysHighlighted = [.init(x: lastValue1?.x ?? 0, y: lastValue1?.y ?? 0, dataSetIndex: 0), .init(x: lastValue2?.x ?? 0, y: lastValue2?.y ?? 0, dataSetIndex: 1)]
         let data = LineChartData(dataSets: [set1, set2])
 
         chartView.data = data

@@ -124,6 +124,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// The array of currently highlighted values. This might an empty if nothing is highlighted.
     @objc open internal(set) var highlighted = [Highlight]()
     
+    @objc open var alwaysHighlighted = [Highlight]()
+    
     /// `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
     @objc open var drawMarkers = true
@@ -134,6 +136,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
+    
+    @objc open var alwaysExistingMarker: Marker?
 
     /// An extra offset to be appended to the viewport's top
     @objc open var extraTopOffset: CGFloat = 0.0
