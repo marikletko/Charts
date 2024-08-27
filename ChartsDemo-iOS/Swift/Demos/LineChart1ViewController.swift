@@ -59,6 +59,7 @@ class LineChart1ViewController: DemoBaseViewController {
         chartView.xAxis.gridLineDashPhase = 0
 
         let ll1 = ChartLimitLine(limit: 150, label: "Upper Limit")
+        ll1.xStartPosition = 4
         ll1.lineWidth = 4
         ll1.lineDashLengths = [5, 5]
         ll1.labelPosition = .rightTop

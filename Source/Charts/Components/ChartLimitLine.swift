@@ -37,7 +37,7 @@ open class ChartLimitLine: ComponentBase
     @objc open var lineDashLengths: [CGFloat]?
     
     @objc open var valueBackgroundColor = NSUIColor.clear
-    
+    @objc open var xStartPosition: Int = 0
     @objc open var valueTextColor = NSUIColor.labelOrBlack
     @objc open var valueFont = NSUIFont.systemFont(ofSize: 13.0)
     

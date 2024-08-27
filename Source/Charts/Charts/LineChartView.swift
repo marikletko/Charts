@@ -35,7 +35,7 @@ open class LineChartView: BarLineChartViewBase, LineChartDataProvider
             isDrawMarkersEnabled && !alwaysHighlighted.isEmpty
         else { return }
         
-        let yCoordinates: [Double] = {
+        var yCoordinates = {
             var yCoordinatesChanged: [Double] = []
             var currentCoordinates: [Double] = []
             let highlights = alwaysHighlighted
@@ -75,23 +75,30 @@ open class LineChartView: BarLineChartViewBase, LineChartDataProvider
         for i in alwaysHighlighted.indices
         {
             let highlight = alwaysHighlighted[i]
-            let changedY = yCoordinates[i]
+            
             guard
                 let set = data?.dataSet(at: highlight.dataSetIndex),
                 let e = data?.entry(for: highlight)
             else { continue }
-            
+            // callbacks to update the content
+            marker.refreshContent(entry: e, highlight: highlight)
             let entryIndex = set.entryIndex(entry: e)
             if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
             {
                 continue
             }
-    
+            let coordinates = yCoordinates
+            let changedY = coordinates[i]
             let trans = getTransformer(forAxis: set.axisDependency)
-            
             var pt = trans.pixelForValues(x: highlight.x, y: highlight.y)
             pt.y = changedY
-            pt.x = viewPortHandler.contentRect.width// - marker.size.width
+            
+            if marker.size.width > viewPortHandler.chartWidth - viewPortHandler.offsetRight {
+                pt.x = viewPortHandler.chartWidth - viewPortHandler.offsetRight - (marker.size.width - viewPortHandler.chartWidth - viewPortHandler.offsetRight)
+            } else {
+                pt.x = viewPortHandler.chartWidth - viewPortHandler.offsetRight
+            }
+      //      pt.x = viewPortHandler.chartWidth - marker.size.width
             highlight.setDraw(pt: pt)
             
             let pos = getMarkerPosition(highlight: highlight)
@@ -100,13 +107,12 @@ open class LineChartView: BarLineChartViewBase, LineChartDataProvider
             
             
             // check bounds
-            if !viewPortHandler.isInBounds(x: pos.x, y: pos.y)
+            if !viewPortHandler.isInBounds(x: pos.x - marker.size.width - viewPortHandler.offsetRight, y: pos.y)
             {
                 continue
             }
             
-            // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
+     
             
             // draw the marker
             marker.draw(context: context, point: pos)

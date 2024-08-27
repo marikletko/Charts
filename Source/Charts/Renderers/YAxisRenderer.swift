@@ -267,6 +267,7 @@ open class YAxisRenderer: NSObject, AxisRenderer
             var clippingRect = viewPortHandler.contentRect
             clippingRect.origin.y -= l.lineWidth / 2.0
             clippingRect.size.height += l.lineWidth
+            clippingRect.origin.x = transformer.pixelForValues(x: Double(l.xStartPosition), y: 0).x
             context.clip(to: clippingRect)
             
             position.x = 0.0
