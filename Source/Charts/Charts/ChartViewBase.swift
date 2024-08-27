@@ -137,7 +137,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
     
-    @objc open var alwaysExistingMarker: Marker?
+    @objc open var alwaysExistingMarker: MarkerImage?
 
     /// An extra offset to be appended to the viewport's top
     @objc open var extraTopOffset: CGFloat = 0.0
