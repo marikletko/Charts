@@ -133,19 +133,12 @@ open class AxisBase: ComponentBase
     
     @objc open func getLongestLabel() -> String
     {
-        var longestSize = CGSize()
-        var longestStr: String = ""
-        // iterate over all labels
-        for i in 0 ..< entries.count {
-            let text = getFormattedLabel(i)
-            let size = text.size(withAttributes: [NSAttributedString.Key.font: labelFont])
-            
-            if size.width > longestSize.width {
-                longestStr = text
-            }
-        }
-        
-        return longestStr
+        let longest = entries.indices
+            .lazy
+            .map(getFormattedLabel(_:))
+            .max(by: \.count)
+
+        return longest ?? ""
     }
     
     /// - Returns: The formatted label at the specified index. This will either use the auto-formatter or the custom formatter (if one is set).

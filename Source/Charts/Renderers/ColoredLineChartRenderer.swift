@@ -115,12 +115,28 @@ open class ColoredLineChartRenderer: LineChartRenderer {
         }
         let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
         let minValue = dataSet.yValueOfColorChangeBorder != nil ? CGFloat(dataSet.yValueOfColorChangeBorder!.doubleValue) : dataSet.yMin
-        for band in ColorSection.topBottom(min: minValue, max: dataSet.yMax, aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red) {
-            let y0 = max(CGPoint(x: 0, y: band.min).applying(valueToPixelMatrix).y, 0)
-            let y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
-            context.saveGState()
+
+        let bands = ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red)
+        let aboveBand = bands.first
+        let belowBand = bands.last
+        
+        if let aboveBand = aboveBand {
+            let y0 = CGPoint(x: 0, y: dataSet.yMin).applying(valueToPixelMatrix).y
+            let y1 = CGPoint(x: 0, y: dataSet.yMax).applying(valueToPixelMatrix).y
+            context.saveGState()    // ; do {
             context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
-            band.strokeColor.setStroke()
+            aboveBand.strokeColor.setStroke()
+            context.setLineWidth(dataSet.lineWidth)
+            context.addPath(path)
+            context.strokePath()
+            context.restoreGState()
+        }
+        if let belowBand = belowBand {
+            let y0 = CGPoint(x: 0, y: 0).applying(valueToPixelMatrix).y
+            let y1 = CGPoint(x: 0, y: minValue).applying(valueToPixelMatrix).y
+            context.saveGState()    // ; do {
+            context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
+            belowBand.strokeColor.setStroke()
             context.setLineWidth(dataSet.lineWidth)
             context.addPath(path)
             context.strokePath()
@@ -176,12 +192,27 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             }
             
             let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
-            for band in ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red) {
-                let y0 = max(CGPoint(x: 0, y: band.min).applying(valueToPixelMatrix).y, 0)
-                let y1 = min(CGPoint(x: 0, y: band.max).applying(valueToPixelMatrix).y, graphSize.height)
+            let bands = ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red)
+            let aboveBand = bands.first
+            let belowBand = bands.last
+            let minValue = dataSet.yValueOfColorChangeBorder != nil ? CGFloat(dataSet.yValueOfColorChangeBorder!.doubleValue) : dataSet.yMin
+            if let aboveBand = aboveBand {
+                let y0 = CGPoint(x: 0, y: dataSet.yMin).applying(valueToPixelMatrix).y
+                let y1 = CGPoint(x: 0, y: dataSet.yMax).applying(valueToPixelMatrix).y
                 context.saveGState()    // ; do {
                 context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
-                band.strokeColor.setStroke()
+                aboveBand.strokeColor.setStroke()
+                context.setLineWidth(dataSet.lineWidth)
+                context.addPath(cubicDrawPath)
+                context.strokePath()
+                context.restoreGState()
+            }
+            if let belowBand = belowBand {
+                let y0 = CGPoint(x: 0, y: 0).applying(valueToPixelMatrix).y
+                let y1 = CGPoint(x: 0, y: minValue).applying(valueToPixelMatrix).y
+                context.saveGState()    // ; do {
+                context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
+                belowBand.strokeColor.setStroke()
                 context.setLineWidth(dataSet.lineWidth)
                 context.addPath(cubicDrawPath)
                 context.strokePath()
@@ -485,3 +516,4 @@ open class ColoredLineChartRenderer: LineChartRenderer {
     }
     
 }
+
