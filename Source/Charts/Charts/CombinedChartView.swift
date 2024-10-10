@@ -204,43 +204,125 @@ open class CombinedChartView: BarLineChartViewBase, CombinedChartDataProvider
     open var isHighlightFullBarEnabled: Bool { return highlightFullBarEnabled }
     
     // MARK: - ChartViewBase
-    
+    override open func draw(_ rect: CGRect) {
+        super.draw(rect)
+        
+        guard data != nil, let renderer = renderer else { return }
+
+        let optionalContext = NSUIGraphicsGetCurrentContext()
+        guard let context = optionalContext else { return }
+        drawMarkers(context: context)
+    }
     /// draws all MarkerViews on the highlighted positions
     override func drawMarkers(context: CGContext)
     {
-        guard
-            let marker = marker, 
-            isDrawMarkersEnabled && valuesToHighlight()
-            else { return }
-        
-        for i in highlighted.indices
-        {
-            let highlight = highlighted[i]
+        if let alwaysExistingMarker = alwaysExistingMarker,
+           !alwaysHighlighted.isEmpty {
             
-            guard 
-                let set = combinedData?.getDataSetByHighlight(highlight),
-                let e = data?.entry(for: highlight)
+            var yCoordinates = {
+                var yCoordinatesChanged: [Double] = []
+                var currentCoordinates: [Double] = []
+                let highlights = alwaysHighlighted
+                
+                highlights.forEach {
+                    let set = combinedData?.getDataSetByHighlight($0)
+                    let trans = getTransformer(forAxis: set?.axisDependency ?? .right)
+                    let pt = trans.pixelForValues(x: $0.x, y: $0.y)
+                    currentCoordinates.append(pt.y)
+                }
+                if let first = currentCoordinates.first, let second = currentCoordinates.last, currentCoordinates.count == 2 {
+                    
+                    let maxCoordinate = max(first, second)
+                    let minCoordinate = min(first, second)
+                    
+                    if maxCoordinate - alwaysExistingMarker.size.height < minCoordinate {
+                        let newOffset = abs(maxCoordinate - alwaysExistingMarker.size.height - minCoordinate) / 2
+                        
+                        let firstYCoordinate = first == maxCoordinate ? first + newOffset : first - newOffset
+                        let secondYCoordinate = first == maxCoordinate ? second - newOffset : second + newOffset
+                        
+                        yCoordinatesChanged.append(firstYCoordinate)
+                        yCoordinatesChanged.append(secondYCoordinate)
+                    } else {
+                        return currentCoordinates
+                    }
+                    
+                    return yCoordinatesChanged
+                } else {
+                    return currentCoordinates
+                }
+            }()
+            
+            for i in alwaysHighlighted.indices
+            {
+                let highlight = alwaysHighlighted[i]
+                guard
+                    let set = combinedData?.getDataSetByHighlight(highlight),
+                    let e = data?.entry(for: highlight)
                 else { continue }
-            
-            let entryIndex = set.entryIndex(entry: e)
-            if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
-            {
-                continue
+                alwaysExistingMarker.refreshContent(entry: e, highlight: highlight)
+                let entryIndex = set.entryIndex(entry: e)
+                if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
+                {
+                    continue
+                }
+                let coordinates = yCoordinates
+                let changedY = coordinates[i]
+                let trans = getTransformer(forAxis: set.axisDependency)
+                var pt = trans.pixelForValues(x: highlight.x, y: highlight.y)
+                pt.y = changedY
+                
+                if alwaysExistingMarker.size.width > viewPortHandler.chartWidth - viewPortHandler.offsetRight {
+                    pt.x = viewPortHandler.chartWidth - viewPortHandler.offsetRight - (alwaysExistingMarker.size.width - viewPortHandler.chartWidth - viewPortHandler.offsetRight)
+                } else {
+                    pt.x = viewPortHandler.chartWidth - viewPortHandler.offsetRight
+                }
+                highlight.setDraw(pt: pt)
+                
+                let pos = getMarkerPosition(highlight: highlight)
+                
+                if !viewPortHandler.isInBounds(x: pos.x - alwaysExistingMarker.size.width - viewPortHandler.offsetRight, y: pos.y)
+                {
+                    continue
+                }
+                alwaysExistingMarker.draw(context: context, point: pos)
             }
+        }
+        
+        
+        if let marker = marker,
+           isDrawMarkersEnabled && valuesToHighlight() {
             
-            let pos = getMarkerPosition(highlight: highlight)
-            
-            // check bounds
-            if !viewPortHandler.isInBounds(x: pos.x, y: pos.y)
+            for i in highlighted.indices
             {
-                continue
+                let highlight = highlighted[i]
+                
+                guard
+                    let set = combinedData?.getDataSetByHighlight(highlight),
+                    let e = data?.entry(for: highlight)
+                else { continue }
+                
+                let entryIndex = set.entryIndex(entry: e)
+                if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
+                {
+                    continue
+                }
+                
+                let pos = getMarkerPosition(highlight: highlight)
+                
+                // check bounds
+                if !viewPortHandler.isInBounds(x: pos.x, y: pos.y)
+                {
+                    continue
+                }
+                
+                // callbacks to update the content
+                marker.refreshContent(entry: e, highlight: highlight)
+                
+                // draw the marker
+                marker.draw(context: context, point: pos)
             }
-            
-            // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
-            
-            // draw the marker
-            marker.draw(context: context, point: pos)
         }
     }
 }
+ 

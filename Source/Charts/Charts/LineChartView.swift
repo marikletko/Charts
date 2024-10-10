@@ -46,19 +46,16 @@ open class LineChartView: BarLineChartViewBase, LineChartDataProvider
                 let pt = trans.pixelForValues(x: $0.x, y: $0.y)
                 currentCoordinates.append(pt.y)
             }
-            
-            let minY = viewPortHandler.contentTop
-  
             if let first = currentCoordinates.first, let second = currentCoordinates.last, currentCoordinates.count == 2 {
                 
-                var maxCoordinate = max(first, second)
-                var minCoordinate = min(first, second)
+                let maxCoordinate = max(first, second)
+                let minCoordinate = min(first, second)
 
                 if maxCoordinate - marker.size.height < minCoordinate {
                     let newOffset = abs(maxCoordinate - marker.size.height - minCoordinate) / 2
                     
-                    var firstYCoordinate = first == maxCoordinate ? first + newOffset : first - newOffset
-                    var secondYCoordinate = first == maxCoordinate ? second - newOffset : second + newOffset
+                    let firstYCoordinate = first == maxCoordinate ? first + newOffset : first - newOffset
+                    let secondYCoordinate = first == maxCoordinate ? second - newOffset : second + newOffset
 
                     yCoordinatesChanged.append(firstYCoordinate)
                     yCoordinatesChanged.append(secondYCoordinate)
@@ -75,12 +72,11 @@ open class LineChartView: BarLineChartViewBase, LineChartDataProvider
         for i in alwaysHighlighted.indices
         {
             let highlight = alwaysHighlighted[i]
-            
             guard
                 let set = data?.dataSet(at: highlight.dataSetIndex),
                 let e = data?.entry(for: highlight)
             else { continue }
-            // callbacks to update the content
+
             marker.refreshContent(entry: e, highlight: highlight)
             let entryIndex = set.entryIndex(entry: e)
             if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
@@ -98,23 +94,14 @@ open class LineChartView: BarLineChartViewBase, LineChartDataProvider
             } else {
                 pt.x = viewPortHandler.chartWidth - viewPortHandler.offsetRight
             }
-      //      pt.x = viewPortHandler.chartWidth - marker.size.width
             highlight.setDraw(pt: pt)
             
             let pos = getMarkerPosition(highlight: highlight)
-            
-            
-            
-            
-            // check bounds
+
             if !viewPortHandler.isInBounds(x: pos.x - marker.size.width - viewPortHandler.offsetRight, y: pos.y)
             {
                 continue
             }
-            
-     
-            
-            // draw the marker
             marker.draw(context: context, point: pos)
         }
         
