@@ -287,8 +287,24 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 guard let ePrev = dataSet.entryForIndex(x-1), let eNext = dataSet.entryForIndex(x + 1) else {
                     if e.y > fillMin {
                         filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+                        
+                        if let eNext = dataSet.entryForIndex(x + 1), eNext.y < fillMin {
+                            let a = (eNext.y - e.y) / (eNext.x - e.x)
+                            let b = e.y - (a * e.x)
+                            let xValue = (fillMin - b) / a
+                            filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                            continue
+                        }
                     } else {
                         filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        
+                        if let eNext = dataSet.entryForIndex(x + 1), eNext.y > fillMin {
+                            let a = (eNext.y - e.y) / (eNext.x - e.x)
+                            let b = e.y - (a * e.x)
+                            let xValue = (fillMin - b) / a
+                            filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                            continue
+                        }
                     }
                     continue
                 }
@@ -322,8 +338,24 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 guard let ePrev = dataSet.entryForIndex(x-1), let eNext = dataSet.entryForIndex(x + 1) else {
                     if e.y < fillMin {
                         filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
+                        
+                        if let eNext = dataSet.entryForIndex(x + 1), eNext.y > fillMin {
+                            let a = (eNext.y - e.y) / (eNext.x - e.x)
+                            let b = e.y - (a * e.x)
+                            let xValue = (fillMin - b) / a
+                            filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                            continue
+                        }
                     } else {
                         filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        
+                        if let eNext = dataSet.entryForIndex(x + 1), eNext.y < fillMin {
+                            let a = (eNext.y - e.y) / (eNext.x - e.x)
+                            let b = e.y - (a * e.x)
+                            let xValue = (fillMin - b) / a
+                            filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                            continue
+                        }
                     }
                     continue
                 }

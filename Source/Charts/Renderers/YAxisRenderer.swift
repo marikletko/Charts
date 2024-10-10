@@ -298,7 +298,7 @@ open class YAxisRenderer: NSObject, AxisRenderer
 
             let labelLineHeight = l.valueFont.lineHeight
 
-            let xOffset = 4.0 + l.xOffset
+            let xOffset = 4.0 + l.xOffset + transformer.pixelForValues(x: Double(l.xStartPosition), y: 0).x
             let yOffset = l.lineWidth + labelLineHeight + l.yOffset
 
             let align: TextAlignment
