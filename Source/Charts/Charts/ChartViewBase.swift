@@ -27,6 +27,8 @@ public protocol ChartViewDelegate
     ///   - highlight: The corresponding highlight object that contains information about the highlighted position such as dataSetIndex etc.
     @objc optional func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight)
     
+    @objc optional func multipleChartValuesSelected(_ chartView: ChartViewBase, entries: [ChartDataEntry], highlights: [Highlight])
+    
     /// Called when a user stops panning between values on the chart
     @objc optional func chartViewDidEndPanning(_ chartView: ChartViewBase)
     
@@ -58,7 +60,6 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             offsetsCalculated = false
 
             guard let data = data else { return }
-            data.yMax
             // calculate how many digits are needed
             setupDefaultFormatter(min: data.yMin, max: data.yMax)
 
@@ -436,6 +437,23 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     {
         highlightValue(highlight, callDelegate: false)
     }
+    
+    @objc open func mutliHighlightValue(_ highlights: [Highlight], callDelegate: Bool)
+    {
+       highlighted = highlights
+
+        if callDelegate
+        {
+            let entries = highlighted.compactMap{data?.entry(for: $0)}
+            if highlighted.count > 1, entries.count > 1 {
+              
+                delegate?.multipleChartValuesSelected?(self, entries: entries, highlights: highlighted)
+            }
+        }
+
+        // redraw the chart
+        setNeedsDisplay()
+    }
 
     /// Highlights the value selected by touch gesture.
     @objc open func highlightValue(_ highlight: Highlight?, callDelegate: Bool)
@@ -457,6 +475,7 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         }
 
         // set the indices to highlight
+        //////
        highlighted = [h]
 
         if callDelegate
@@ -485,7 +504,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
 
     /// The last value that was highlighted via touch.
     @objc open var lastHighlighted: Highlight?
-  
+    
+
     // MARK: - Markers
 
     /// draws all MarkerViews on the highlighted positions

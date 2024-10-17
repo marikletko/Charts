@@ -384,7 +384,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
          
             if dataProvider.cornerRadius != 0.0
             {
-                let rectCorners: UIRectCorner = [.topLeft, .topRight]
+                guard let e = dataSet.entryForIndex(j) as? BarChartDataEntry else { return }
+                let rectCorners: UIRectCorner = e.y > 0 ? [.topLeft, .topRight] : [.bottomLeft, .bottomRight]
                 let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: rectCorners, cornerRadii: CGSize(width: dataProvider.cornerRadius, height: dataProvider.cornerRadius))
                 context.addPath(bezierPath.cgPath)
                 context.drawPath(using: .fill)
@@ -757,7 +758,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 setHighlightDrawPos(highlight: high, barRect: barRect)
                 
-                context.fill(barRect)
+                
+                if dataProvider.cornerRadius != 0.0
+                {
+                    let rectCorners: UIRectCorner = e.y > 0 ? [.topLeft, .topRight] : [.bottomLeft, .bottomRight]
+                    let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: rectCorners, cornerRadii: CGSize(width: dataProvider.cornerRadius, height: dataProvider.cornerRadius))
+                    context.addPath(bezierPath.cgPath)
+                    context.drawPath(using: .fill)
+                } else {
+                    context.fill(barRect)
+                }
             }
         }
     }
