@@ -157,6 +157,8 @@ open class GenericPriceChartView: BarLineChartViewBase, CombinedChartDataProvide
         }
     }
     
+    @objc open var multiTouchLeftMarker: Marker?
+    @objc open var multiTouchRightMarker: Marker?
     // MARK: - Accessors
     
     /// if set to true, all values are drawn above their bars, instead of below their top
@@ -210,6 +212,7 @@ open class GenericPriceChartView: BarLineChartViewBase, CombinedChartDataProvide
         guard let context = optionalContext else { return }
         drawMarkers(context: context)
     }
+    
     /// draws all MarkerViews on the highlighted positions
     override func drawMarkers(context: CGContext)
     {
@@ -286,38 +289,74 @@ open class GenericPriceChartView: BarLineChartViewBase, CombinedChartDataProvide
             }
         }
         
-        
-        if let marker = marker,
-           isDrawMarkersEnabled && valuesToHighlight() {
+        if isMultiTouchActive, isDrawMarkersEnabled {
             
-            for i in highlighted.indices
-            {
-                let highlight = highlighted[i]
-                
-                guard
-                    let set = combinedData?.getDataSetByHighlight(highlight),
-                    let e = data?.entry(for: highlight)
-                else { continue }
-                
-                let entryIndex = set.entryIndex(entry: e)
-                if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
+            if let leftMarker = multiTouchLeftMarker, let rightMarker = multiTouchRightMarker, valuesToHighlight(), highlighted.count == 2 {
+       //         highlighted = highlighted.sorted(by: {$0.x < $1.x})
+                let markers = [leftMarker, rightMarker]
+                for i in highlighted.indices
                 {
-                    continue
+                    let highlight = highlighted[i]
+                    let marker = markers[i]
+                    guard
+                        let set = combinedData?.getDataSetByHighlight(highlight),
+                        let e = data?.entry(for: highlight)
+                    else { continue }
+                    
+                    let entryIndex = set.entryIndex(entry: e)
+                    if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
+                    {
+                        continue
+                    }
+                    
+                    let pos = getMarkerPosition(highlight: highlight)
+                    
+                    // check bounds
+                    if !viewPortHandler.isInBounds(x: pos.x, y: pos.y)
+                    {
+                        continue
+                    }
+                    
+                    // callbacks to update the content
+                    marker.refreshContent(entry: e, highlight: highlight)
+                    
+                    // draw the marker
+                    marker.draw(context: context, point: pos)
                 }
+            }
+        } else {
+            if let marker = marker,
+               isDrawMarkersEnabled && valuesToHighlight() {
                 
-                let pos = getMarkerPosition(highlight: highlight)
-                
-                // check bounds
-                if !viewPortHandler.isInBounds(x: pos.x, y: pos.y)
+                for i in highlighted.indices
                 {
-                    continue
+                    let highlight = highlighted[i]
+                    
+                    guard
+                        let set = combinedData?.getDataSetByHighlight(highlight),
+                        let e = data?.entry(for: highlight)
+                    else { continue }
+                    
+                    let entryIndex = set.entryIndex(entry: e)
+                    if entryIndex > Int(Double(set.entryCount) * chartAnimator.phaseX)
+                    {
+                        continue
+                    }
+                    
+                    let pos = getMarkerPosition(highlight: highlight)
+                    
+                    // check bounds
+                    if !viewPortHandler.isInBounds(x: pos.x, y: pos.y)
+                    {
+                        continue
+                    }
+                    
+                    // callbacks to update the content
+                    marker.refreshContent(entry: e, highlight: highlight)
+                    
+                    // draw the marker
+                    marker.draw(context: context, point: pos)
                 }
-                
-                // callbacks to update the content
-                marker.refreshContent(entry: e, highlight: highlight)
-                
-                // draw the marker
-                marker.draw(context: context, point: pos)
             }
         }
     }
