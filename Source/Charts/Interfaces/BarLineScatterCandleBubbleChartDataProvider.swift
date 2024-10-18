@@ -18,6 +18,8 @@ public protocol BarLineScatterCandleBubbleChartDataProvider: ChartDataProvider
     func getTransformer(forAxis: YAxis.AxisDependency) -> Transformer
     func isInverted(axis: YAxis.AxisDependency) -> Bool
     
+    var highlighted: [Highlight] { get }
+    var isMultiTouchActive: Bool { get }
     var lowestVisibleX: Double { get }
     var highestVisibleX: Double { get }
 }

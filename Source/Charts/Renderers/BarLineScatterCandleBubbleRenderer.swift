@@ -93,6 +93,25 @@ open class BarLineScatterCandleBubbleRenderer: NSObject, DataRenderer
             self.set(chart: chart, dataSet: dataSet, animator: animator)
         }
         
+        open func set(chart: BarLineScatterCandleBubbleChartDataProvider,
+                      dataSet: BarLineScatterCandleBubbleChartDataSetProtocol,
+                      minX: Double,
+                      maxX: Double,
+                      animator: Animator?)
+        {
+            let phaseX = Swift.max(0.0, Swift.min(1.0, animator?.phaseX ?? 1.0))
+            
+            let low = chart.lowestVisibleX > minX ? chart.lowestVisibleX: minX
+            let high = chart.highestVisibleX < maxX ? chart.highestVisibleX: maxX
+            
+            let entryFrom = dataSet.entryForXValue(low, closestToY: .nan, rounding: .down)
+            let entryTo = dataSet.entryForXValue(high, closestToY: .nan, rounding: .up)
+            
+            self.min = entryFrom == nil ? 0 : dataSet.entryIndex(entry: entryFrom!)
+            self.max = entryTo == nil ? 0 : dataSet.entryIndex(entry: entryTo!)
+            range = Int(Double(self.max - self.min) * phaseX)
+        }
+        
         /// Calculates the minimum and maximum x values as well as the range between them.
         open func set(chart: BarLineScatterCandleBubbleChartDataProvider,
                       dataSet: BarLineScatterCandleBubbleChartDataSetProtocol,

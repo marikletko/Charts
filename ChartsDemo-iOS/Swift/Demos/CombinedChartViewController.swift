@@ -17,7 +17,7 @@ import Charts
 private let ITEM_COUNT = 12
 
 class CombinedChartViewController: DemoBaseViewController {
-    @IBOutlet var chartView: CombinedChartView!
+    @IBOutlet var chartView: GenericPriceChartView!
     
     let months = ["Jan", "Feb", "Mar",
                   "Apr", "May", "Jun",
@@ -27,8 +27,9 @@ class CombinedChartViewController: DemoBaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Do any additional setup after loading the view.
+        chartView.isMultiTouchActive = true
+        chartView.isMultipleTouchEnabled = true
+        // Do any additioccnal setup after loading the view.
         self.title = "Combined Chart"
         self.options = [.toggleLineValues,
                         .toggleBarValues,
@@ -39,6 +40,8 @@ class CombinedChartViewController: DemoBaseViewController {
         
         chartView.delegate = self
         
+        
+       
         chartView.chartDescription.enabled = false
         
         chartView.drawBarShadowEnabled = false
@@ -70,7 +73,11 @@ class CombinedChartViewController: DemoBaseViewController {
         xAxis.axisMinimum = 0
         xAxis.granularity = 1
         xAxis.valueFormatter = self
-        
+  
+        chartView.dragEnabled = true
+        chartView.setScaleEnabled(false)
+        chartView.pinchZoomEnabled = false
+        chartView.highlightPerTapEnabled = false
         self.updateChartData()
     }
     
@@ -86,10 +93,10 @@ class CombinedChartViewController: DemoBaseViewController {
     func setChartData() {
         let data = CombinedChartData()
         data.lineData = generateLineData()
-        data.barData = generateBarData()
-        data.bubbleData = generateBubbleData()
-        data.scatterData = generateScatterData()
-        data.candleData = generateCandleData()
+     //   data.barData = generateBarData()
+     //   data.bubbleData = generateBubbleData()
+    //    data.scatterData = generateScatterData()
+     //   data.candleData = generateCandleData()
         
         chartView.xAxis.axisMaximum = data.xMax + 0.25
         
@@ -138,11 +145,11 @@ class CombinedChartViewController: DemoBaseViewController {
         set.circleRadius = 5
         set.circleHoleRadius = 2.5
         set.fillColor = UIColor(red: 240/255, green: 238/255, blue: 70/255, alpha: 1)
-        set.mode = .cubicBezier
+        set.mode = .linear
         set.drawValuesEnabled = true
         set.valueFont = .systemFont(ofSize: 10)
         set.valueTextColor = UIColor(red: 240/255, green: 238/255, blue: 70/255, alpha: 1)
-        
+        set.isMultiColorFill = true
         set.axisDependency = .left
         
         return LineChartData(dataSet: set)

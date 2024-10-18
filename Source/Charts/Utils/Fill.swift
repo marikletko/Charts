@@ -162,7 +162,6 @@ public class LinearMultiColorGradientFill: LinearGradientFill
 
         let radians = (360.0 - angle).DEG2RAD
         
-      
         let centerPoint = CGPoint(x: rect.midX, y: transformer.pixelForValues(x: 0, y: middleY).y)
         let xAngleDelta = cos(radians) * rect.width / 2.0
         let yAngleDelta = sin(radians) * rect.height / 2.0
@@ -174,6 +173,45 @@ public class LinearMultiColorGradientFill: LinearGradientFill
             x: centerPoint.x + xAngleDelta,
             y: centerPoint.y + yAngleDelta
         )
+        context.clip()
+        context.drawLinearGradient(
+            gradient,
+            start: startPoint,
+            end: endPoint,
+            options: [.drawsAfterEndLocation, .drawsBeforeStartLocation]
+        )
+    }
+}
+
+@objc(ChartPriceLinearMultiColorGradientFill)
+public class PriceLinearMultiColorGradientFill: NSObject, Fill
+{
+    @objc public let middleY: CGFloat
+    @objc public let colors: [CGColor]
+    public init(colors: [CGColor], angle: CGFloat = 0, middleY: CGFloat) {
+        self.middleY = middleY
+        self.colors = colors
+    }
+    public func fillPath(context: CGContext, transformer: Transformer)
+    {
+        let rect = transformer.viewPortHandler.contentRect
+        context.saveGState()
+        defer { context.restoreGState() }
+
+        let radians = (360.0 - 90.0).DEG2RAD
+        
+        let centerPoint = CGPoint(x: rect.midX, y: transformer.pixelForValues(x: 0, y: middleY).y)
+        let xAngleDelta = cos(radians) * rect.width / 2.0
+        let yAngleDelta = sin(radians) * rect.height / 2.0
+        let startPoint = CGPoint(
+            x: centerPoint.x - xAngleDelta,
+            y: centerPoint.y - yAngleDelta
+        )
+        let endPoint = CGPoint(
+            x: centerPoint.x + xAngleDelta,
+            y: centerPoint.y + yAngleDelta
+        )
+        let gradient = CGGradient(colorsSpace: nil, colors: colors as CFArray, locations: endPoint.y > startPoint.y ? [0.0, 1.0] : [1.0, 0.0])!
         context.clip()
         context.drawLinearGradient(
             gradient,

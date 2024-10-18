@@ -37,7 +37,9 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
 
     /// The points where gradient should change color
     var gradientPositions: [CGFloat]? { get set }
+    
     var belowFill: Fill? { get set }
+    var uncertainFill: Fill? { get set }
 
     /// The radius of the drawn circles.
     var circleRadius: CGFloat { get set }

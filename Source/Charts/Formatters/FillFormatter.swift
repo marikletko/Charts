@@ -20,4 +20,5 @@ public protocol FillFormatter
     func getFillLinePosition(dataSet: LineChartDataSetProtocol, dataProvider: LineChartDataProvider) -> CGFloat
     @objc optional func getFillAboveColor() -> NSUIColor
     @objc optional func getFillBelowColor() -> NSUIColor
+    @objc optional func getUncertainColor() -> NSUIColor
 }

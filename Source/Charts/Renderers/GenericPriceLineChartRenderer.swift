@@ -8,10 +8,11 @@
 import Foundation
 import CoreGraphics
 
-open class ColoredLineChartRenderer: LineChartRenderer {
+open class GenericPriceLineChartRenderer: LineChartRenderer {
     //
     // var chartHeight:CGFloat = 0
     
+    private var isCurrentlyMultitouchActive: Bool = false
     private var myXBounds = BarLineScatterCandleBubbleRenderer.XBounds()
     // added to support the commented "Color Section" code below
     // min & maximum visible data geometry coordinate
@@ -46,7 +47,7 @@ open class ColoredLineChartRenderer: LineChartRenderer {
             return
         }
         guard let dataProvider = dataProvider else { return }
-        
+    
         let trans = dataProvider.getTransformer(forAxis: dataSet.axisDependency)
         
         let valueToPixelMatrix = trans.valueToPixelMatrix
@@ -75,6 +76,8 @@ open class ColoredLineChartRenderer: LineChartRenderer {
         var firstPoint = true
         
         let path = CGMutablePath()
+        
+
         for x in stride(from: myXBounds.min, through: myXBounds.range + myXBounds.min, by: 1)
         {
             guard let e1 = dataSet.entryForIndex(x == 0 ? 0 : (x - 1)) else { continue }
@@ -113,34 +116,104 @@ open class ColoredLineChartRenderer: LineChartRenderer {
                 .applying(valueToPixelMatrix)
             path.addLine(to: endPoint)
         }
+        
         let graphSize = CGSize(width: viewPortHandler.chartWidth, height: viewPortHandler.chartWidth)
         let minValue = dataSet.yValueOfColorChangeBorder != nil ? CGFloat(dataSet.yValueOfColorChangeBorder!.doubleValue) : dataSet.yMin
-
-        let bands = ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red)
-        let aboveBand = bands.first
-        let belowBand = bands.last
         
-        if let aboveBand = aboveBand {
+        let isMultiTouchActive = dataProvider.isMultiTouchActive
+        
+        if isMultiTouchActive, dataProvider.highlighted.count > 1, let firstHighlight = dataProvider.highlighted.first, let secondHighlight = dataProvider.highlighted.last {
+            let minHighlight = min(firstHighlight.x, secondHighlight.x)
+            let maxHighlight = max(firstHighlight.x, secondHighlight.x)
+            let firstGrayedOut = minHighlight
+            let secondGrayedOut = maxHighlight
+            
             let y0 = CGPoint(x: 0, y: dataSet.yMin).applying(valueToPixelMatrix).y
             let y1 = CGPoint(x: 0, y: dataSet.yMax).applying(valueToPixelMatrix).y
-            context.saveGState()    // ; do {
-            context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
-            aboveBand.strokeColor.setStroke()
+            
+            let x1 = CGPoint(x: dataSet.xMin, y: 0).applying(valueToPixelMatrix).x
+            let x2 = CGPoint(x: firstGrayedOut, y: 0).applying(valueToPixelMatrix).x
+            let firstWidth = x2 - x1
+            context.saveGState()
+            context.clip(to: CGRect(x: x1, y: 0, width: firstWidth, height: viewPortHandler.chartHeight))
+            (dataSet.fillFormatter?.getUncertainColor?() ?? .gray).setStroke()
             context.setLineWidth(dataSet.lineWidth)
             context.addPath(path)
             context.strokePath()
             context.restoreGState()
-        }
-        if let belowBand = belowBand {
-            let y0 = CGPoint(x: 0, y: 0).applying(valueToPixelMatrix).y
-            let y1 = CGPoint(x: 0, y: minValue).applying(valueToPixelMatrix).y
-            context.saveGState()    // ; do {
-            context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
-            belowBand.strokeColor.setStroke()
+//
+            
+            let x3 = CGPoint(x: firstGrayedOut, y: 0).applying(valueToPixelMatrix).x
+            let x4 = CGPoint(x: secondGrayedOut, y: 0).applying(valueToPixelMatrix).x
+            let secondWidth = x4 - x3
+
+            let bands = ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red)
+            let aboveBand = bands.first
+            let belowBand = bands.last
+
+            if let aboveBand = aboveBand {
+                let y0 = CGPoint(x: 0, y: dataSet.yMin).applying(valueToPixelMatrix).y
+                let y1 = CGPoint(x: 0, y: dataSet.yMax).applying(valueToPixelMatrix).y
+                context.saveGState()
+                context.clip(to: CGRect(x: x3, y: y0, width: secondWidth, height: y1 - y0))
+                aboveBand.strokeColor.setStroke()
+                
+                context.setLineWidth(dataSet.lineWidth)
+                context.addPath(path)
+                context.strokePath()
+                context.restoreGState()
+            }
+            if let belowBand = belowBand {
+                let y0 = CGPoint(x: 0, y: 0).applying(valueToPixelMatrix).y
+                let y1 = CGPoint(x: 0, y: minValue).applying(valueToPixelMatrix).y
+                context.saveGState()
+                context.clip(to: CGRect(x: x3, y: y0, width: secondWidth, height: y1 - y0))
+                belowBand.strokeColor.setStroke()
+                context.setLineWidth(dataSet.lineWidth)
+                context.addPath(path)
+                context.strokePath()
+                context.restoreGState()
+            }
+            
+            
+            let x5 = CGPoint(x: secondGrayedOut, y: 0).applying(valueToPixelMatrix).x
+            let x6 = CGPoint(x: dataSet.xMax, y: 0).applying(valueToPixelMatrix).x
+            let thirdWidth = x6 - x5
+            context.clip(to: CGRect(x: x5, y: 0, width: thirdWidth, height: viewPortHandler.chartHeight))
+            (dataSet.fillFormatter?.getUncertainColor?() ?? .gray).setStroke()
             context.setLineWidth(dataSet.lineWidth)
             context.addPath(path)
             context.strokePath()
             context.restoreGState()
+//             
+        } else {
+            let bands = ColorSection.topBottom(min: dataSet.yMin, max: dataSet.yMax,  aboveColor: dataSet.fillFormatter?.getFillAboveColor?() ?? .green, belowColor: dataSet.fillFormatter?.getFillBelowColor?() ?? .red)
+            let aboveBand = bands.first
+            let belowBand = bands.last
+
+            if let aboveBand = aboveBand {
+                let y0 = CGPoint(x: 0, y: dataSet.yMin).applying(valueToPixelMatrix).y
+                let y1 = CGPoint(x: 0, y: dataSet.yMax).applying(valueToPixelMatrix).y
+                context.saveGState()
+                context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
+                aboveBand.strokeColor.setStroke()
+                
+                context.setLineWidth(dataSet.lineWidth)
+                context.addPath(path)
+                context.strokePath()
+                context.restoreGState()
+            }
+            if let belowBand = belowBand {
+                let y0 = CGPoint(x: 0, y: 0).applying(valueToPixelMatrix).y
+                let y1 = CGPoint(x: 0, y: minValue).applying(valueToPixelMatrix).y
+                context.saveGState()
+                context.clip(to: CGRect(x: 0, y: y0, width: graphSize.width, height: y1 - y0))
+                belowBand.strokeColor.setStroke()
+                context.setLineWidth(dataSet.lineWidth)
+                context.addPath(path)
+                context.strokePath()
+                context.restoreGState()
+            }
         }
     }
     
@@ -230,28 +303,101 @@ open class ColoredLineChartRenderer: LineChartRenderer {
         }
         guard let dataProvider = dataProvider else { return }
         
-        if let aboveColor = dataSet.fillFormatter?.getFillAboveColor?(), let belowColor = dataSet.fillFormatter?.getFillBelowColor?() {
-            let filledAbove = generateFilledPath(
-                dataSet: dataSet,
-                fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
-                bounds: bounds,
-                matrix: trans.valueToPixelMatrix, aboveFillMin: true)
-
-            let filledBelow = generateFilledPath(
-                dataSet: dataSet,
-                fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
-                bounds: bounds,
-                matrix: trans.valueToPixelMatrix, aboveFillMin: false)
+        
+        if dataProvider.isMultiTouchActive, dataProvider.highlighted.count > 1, let firstHighlight = dataProvider.highlighted.first, let secondHighlight = dataProvider.highlighted.last {
             
-            if dataSet.fill != nil
-            {
-                drawFilledPath(context: context, path: filledBelow, fill: dataSet.belowFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
-                drawFilledPath(context: context, path: filledAbove, fill: dataSet.fill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+            if let aboveColor = dataSet.fillFormatter?.getFillAboveColor?(), let belowColor = dataSet.fillFormatter?.getFillBelowColor?(), let uncertainColor = dataSet.fillFormatter?.getUncertainColor?() {
+                
+                let min = Int(min(firstHighlight.x, secondHighlight.x))
+                let max = Int(max(firstHighlight.x, secondHighlight.x))
+                
+                let changedBounds = XBounds()
+                changedBounds.set(chart: dataProvider, dataSet: dataSet, minX: Double(min), maxX: Double(max), animator: animator)
+             
+                let filledAbove = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: changedBounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: true)
+                
+                let filledBelow = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: changedBounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: false)
+                
+                
+                let leftChangedBounds = XBounds()
+                leftChangedBounds.set(chart: dataProvider, dataSet: dataSet, minX: Double(0), maxX: Double(min), animator: animator)
+                let leftFilledUncertain = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: leftChangedBounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: false)
+                
+                let leftFilledUncertainAbove = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: leftChangedBounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: true)
+                
+                let rightChangedBounds = XBounds()
+                rightChangedBounds.set(chart: dataProvider, dataSet: dataSet, minX: Double(max), maxX: Double(dataSet.xMax), animator: animator)
+                let rightFilledUncertain = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: rightChangedBounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: false)
+                
+                let rightFilledUncertainAbove = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: rightChangedBounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: true)
+                
+                if dataSet.fill != nil
+                {
+                    drawFilledPath(context: context, path: leftFilledUncertainAbove, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: leftFilledUncertain, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: filledBelow, fill: dataSet.belowFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: filledAbove, fill: dataSet.fill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: rightFilledUncertain, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: rightFilledUncertainAbove, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                }
+                else
+                {
+                    drawFilledPath(context: context, path: leftFilledUncertainAbove, fillColor: uncertainColor, fillAlpha: dataSet.fillAlpha)
+                    drawFilledPath(context: context, path: leftFilledUncertain, fillColor: uncertainColor, fillAlpha: dataSet.fillAlpha)
+                    drawFilledPath(context: context, path: filledAbove, fillColor: aboveColor, fillAlpha: dataSet.fillAlpha)
+                    drawFilledPath(context: context, path: filledBelow, fillColor: belowColor, fillAlpha: dataSet.fillAlpha)
+                    drawFilledPath(context: context, path: rightFilledUncertain, fillColor: uncertainColor, fillAlpha: dataSet.fillAlpha)
+                    drawFilledPath(context: context, path: rightFilledUncertainAbove, fillColor: uncertainColor, fillAlpha: dataSet.fillAlpha)
+                }
             }
-            else
-            {
-                drawFilledPath(context: context, path: filledAbove, fillColor: aboveColor, fillAlpha: dataSet.fillAlpha)
-                drawFilledPath(context: context, path: filledBelow, fillColor: belowColor, fillAlpha: dataSet.fillAlpha)
+        } else {
+            if let aboveColor = dataSet.fillFormatter?.getFillAboveColor?(), let belowColor = dataSet.fillFormatter?.getFillBelowColor?() {
+                let filledAbove = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: bounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: true)
+                
+                let filledBelow = generateFilledPath(
+                    dataSet: dataSet,
+                    fillMin: dataSet.fillFormatter?.getFillLinePosition(dataSet: dataSet, dataProvider: dataProvider) ?? 0.0,
+                    bounds: bounds,
+                    matrix: trans.valueToPixelMatrix, aboveFillMin: false)
+                
+                if dataSet.fill != nil
+                {
+                    drawFilledPath(context: context, path: filledBelow, fill: dataSet.belowFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: filledAbove, fill: dataSet.fill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                }
+                else
+                {
+                    drawFilledPath(context: context, path: filledAbove, fillColor: aboveColor, fillAlpha: dataSet.fillAlpha)
+                    drawFilledPath(context: context, path: filledBelow, fillColor: belowColor, fillAlpha: dataSet.fillAlpha)
+                }
             }
         }
     }

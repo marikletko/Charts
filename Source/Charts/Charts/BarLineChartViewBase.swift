@@ -97,6 +97,8 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     /// flag that indicates if a custom viewport offset has been set
     private var _customViewPortEnabled = false
     
+    @objc open var isMultiTouchActive: Bool = false
+    
     public override init(frame: CGRect)
     {
         super.init(frame: frame)
@@ -764,6 +766,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             {
                 
                 if recognizer.numberOfTouches > 1 {
+                    isMultiTouchActive = true
                     var multiHighlighted: [Highlight] = []
                     for touch in 0..<recognizer.numberOfTouches {
                         guard let h1 = getHighlightByTouchPoint(recognizer.nsuiLocationOfTouch(touch, inView: self)) else { return }
@@ -771,6 +774,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     }
                     self.mutliHighlightValue(multiHighlighted, callDelegate: true)
                 } else {
+                    isMultiTouchActive = false
                     let h = getHighlightByTouchPoint(recognizer.location(in: self))
                     let lastHighlighted = self.lastHighlighted
                     
@@ -784,6 +788,9 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         }
         else if recognizer.state == NSUIGestureRecognizerState.ended || recognizer.state == NSUIGestureRecognizerState.cancelled
         {
+            if !highlightAfterCancelTouchEnabled {
+                self.highlightValues(nil)
+            }
             if _isDragging
             {
                 if recognizer.state == NSUIGestureRecognizerState.ended && isDragDecelerationEnabled

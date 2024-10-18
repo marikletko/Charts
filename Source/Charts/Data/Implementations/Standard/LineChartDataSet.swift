@@ -74,7 +74,9 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     }
 
     open var yValueOfColorChangeBorder: NSNumber?
-    open var belowFill: Fill? 
+    
+    open var uncertainFill: Fill?
+    open var belowFill: Fill?
     
     open var isDrawLineWithGradientEnabled = false
 

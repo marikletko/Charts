@@ -331,7 +331,8 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// Values can still be highlighted via drag or programmatically.
     /// **default**: true
     @objc open var highlightPerTapEnabled: Bool = true
-
+    @objc open var highlightAfterCancelTouchEnabled: Bool = true
+    
     /// `true` if values can be highlighted via tap gesture, `false` ifnot.
     @objc open var isHighLightPerTapEnabled: Bool
     {
