@@ -232,7 +232,7 @@ open class ScatterChartRenderer: LineScatterCandleRadarRenderer
             high.setDraw(pt: pt)
             
             // draw the lines
-            drawHighlightLines(context: context, point: pt, set: set)
+            drawHighlightLines(context: context, point: pt, set: set, dataProvider: self.dataProvider)
         }
         
         context.restoreGState()

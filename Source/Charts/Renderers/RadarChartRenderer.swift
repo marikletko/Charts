@@ -386,7 +386,9 @@ open class RadarChartRenderer: LineRadarRenderer
             high.setDraw(pt: _highlightPointBuffer)
             
             // draw the lines
-            drawHighlightLines(context: context, point: _highlightPointBuffer, set: set)
+
+            drawHighlightLines(context: context, point: _highlightPointBuffer, set: set, dataProvider: nil)
+            
             
             if set.isDrawHighlightCircleEnabled
             {
