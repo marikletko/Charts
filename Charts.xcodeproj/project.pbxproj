@@ -74,6 +74,7 @@
 		64FA1EDB4DC1F65727D52D10 /* CombinedHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2465CB73738EBAFB46C57288 /* CombinedHighlighter.swift */; };
 		659ABAE32CC26BB6003DE15A /* GenericPriceChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659ABAE22CC26BB6003DE15A /* GenericPriceChartView.swift */; };
 		659ABAEB2CC6607D003DE15A /* CustomLineMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659ABAEA2CC6607D003DE15A /* CustomLineMarkerView.swift */; };
+		659ABAEF2CC6F8FB003DE15A /* GenericCandleLineChartRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659ABAEE2CC6F8FB003DE15A /* GenericCandleLineChartRenderer.swift */; };
 		65EA404AE098EBCE8D5DE04B /* CombinedChartDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A140F644332704916947B58C /* CombinedChartDataProvider.swift */; };
 		65EC08262C248B9A00F9F0D4 /* GenericPriceCombinedChartRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC08252C248B9900F9F0D4 /* GenericPriceCombinedChartRenderer.swift */; };
 		65EC08282C248BA800F9F0D4 /* GenericPriceLineChartRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EC08272C248BA800F9F0D4 /* GenericPriceLineChartRenderer.swift */; };
@@ -252,6 +253,7 @@
 		62B73FCEDD3841E7B958F6A9 /* ChartDataProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChartDataProvider.swift; path = Source/Charts/Interfaces/ChartDataProvider.swift; sourceTree = "<group>"; };
 		659ABAE22CC26BB6003DE15A /* GenericPriceChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GenericPriceChartView.swift; path = Source/Charts/Charts/GenericPriceChartView.swift; sourceTree = "<group>"; };
 		659ABAEA2CC6607D003DE15A /* CustomLineMarkerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomLineMarkerView.swift; path = Source/Charts/Components/CustomLineMarkerView.swift; sourceTree = "<group>"; };
+		659ABAEE2CC6F8FB003DE15A /* GenericCandleLineChartRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GenericCandleLineChartRenderer.swift; path = Source/Charts/Renderers/GenericCandleLineChartRenderer.swift; sourceTree = "<group>"; };
 		65AD9E95D9ED4DC0BD73A743 /* Charts.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Charts.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		65EC08252C248B9900F9F0D4 /* GenericPriceCombinedChartRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GenericPriceCombinedChartRenderer.swift; path = Source/Charts/Renderers/GenericPriceCombinedChartRenderer.swift; sourceTree = "<group>"; };
 		65EC08272C248BA800F9F0D4 /* GenericPriceLineChartRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GenericPriceLineChartRenderer.swift; path = Source/Charts/Renderers/GenericPriceLineChartRenderer.swift; sourceTree = "<group>"; };
@@ -421,6 +423,7 @@
 		2227EA581FF1F224007D98D9 /* ChartRenderers */ = {
 			isa = PBXGroup;
 			children = (
+				659ABAEE2CC6F8FB003DE15A /* GenericCandleLineChartRenderer.swift */,
 				65EC08272C248BA800F9F0D4 /* GenericPriceLineChartRenderer.swift */,
 				65EC08252C248B9900F9F0D4 /* GenericPriceCombinedChartRenderer.swift */,
 				0216EDC6A1FE272F4EB19FCF /* DataRenderer.swift */,
@@ -860,6 +863,7 @@
 				F5A209116FAC68F5903D0B46 /* ChartAnimationEasing.swift in Sources */,
 				D29BBEF55C9CC90114919CD2 /* BarChartView.swift in Sources */,
 				9F760570BCECB0BF5727AF90 /* BarLineChartViewBase.swift in Sources */,
+				659ABAEF2CC6F8FB003DE15A /* GenericCandleLineChartRenderer.swift in Sources */,
 				E4B2F363414E84C4D4B8A885 /* BubbleChartView.swift in Sources */,
 				60EDF735AAB7195DCFA5FE4D /* CandleStickChartView.swift in Sources */,
 				98E2EEF45E8933E4AD182D58 /* ChartViewBase.swift in Sources */,

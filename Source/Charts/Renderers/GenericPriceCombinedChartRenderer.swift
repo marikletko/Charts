@@ -64,7 +64,7 @@ open class GenericPriceCombinedChartRenderer: NSObject, DataRenderer {
             case .candle:
                 if chart.candleData !== nil
                 {
-                    _renderers.append(CandleStickChartRenderer(dataProvider: chart, animator: animator, viewPortHandler: viewPortHandler))
+                    _renderers.append(GenericCandleLineChartRenderer(dataProvider: chart, animator: animator, viewPortHandler: viewPortHandler))
                 }
 
             case .scatter:

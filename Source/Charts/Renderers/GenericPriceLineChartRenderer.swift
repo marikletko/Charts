@@ -12,7 +12,6 @@ open class GenericPriceLineChartRenderer: LineChartRenderer {
     //
     // var chartHeight:CGFloat = 0
     
-    private var isCurrentlyMultitouchActive: Bool = false
     private var myXBounds = BarLineScatterCandleBubbleRenderer.XBounds()
     // added to support the commented "Color Section" code below
     // min & maximum visible data geometry coordinate
