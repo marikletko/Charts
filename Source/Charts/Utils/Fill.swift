@@ -187,10 +187,12 @@ public class LinearMultiColorGradientFill: LinearGradientFill
 public class PriceLinearMultiColorGradientFill: NSObject, Fill
 {
     @objc public let middleY: CGFloat
-    @objc public let colors: [CGColor]
-    public init(colors: [CGColor], angle: CGFloat = 0, middleY: CGFloat) {
+    @objc public let gradient: CGGradient
+    @objc public let angle: Double
+    public init(gradient: CGGradient, angle: Double = 0, middleY: CGFloat) {
+        self.gradient = gradient
+        self.angle = angle
         self.middleY = middleY
-        self.colors = colors
     }
     public func fillPath(context: CGContext, transformer: Transformer)
     {
@@ -198,7 +200,7 @@ public class PriceLinearMultiColorGradientFill: NSObject, Fill
         context.saveGState()
         defer { context.restoreGState() }
 
-        let radians = (360.0 - 90.0).DEG2RAD
+        let radians = (360.0 - angle).DEG2RAD
         
         let centerPoint = CGPoint(x: rect.midX, y: transformer.pixelForValues(x: 0, y: middleY).y)
         let xAngleDelta = cos(radians) * rect.width / 2.0
@@ -211,8 +213,8 @@ public class PriceLinearMultiColorGradientFill: NSObject, Fill
             x: centerPoint.x + xAngleDelta,
             y: centerPoint.y + yAngleDelta
         )
-        let gradient = CGGradient(colorsSpace: nil, colors: colors as CFArray, locations: endPoint.y > startPoint.y ? [0.0, 1.0] : [1.0, 0.0])!
         context.clip()
+        
         context.drawLinearGradient(
             gradient,
             start: startPoint,

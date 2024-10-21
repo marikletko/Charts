@@ -39,6 +39,7 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
     var gradientPositions: [CGFloat]? { get set }
     
     var belowFill: Fill? { get set }
+    var uncertainAboveFill: Fill? { get set }
     var uncertainFill: Fill? { get set }
 
     /// The radius of the drawn circles.

@@ -75,6 +75,7 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
 
     open var yValueOfColorChangeBorder: NSNumber?
     
+    open var uncertainAboveFill: Fill?
     open var uncertainFill: Fill?
     open var belowFill: Fill?
     

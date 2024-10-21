@@ -357,12 +357,12 @@ open class GenericPriceLineChartRenderer: LineChartRenderer {
                 
                 if dataSet.fill != nil
                 {
-                    drawFilledPath(context: context, path: leftFilledUncertainAbove, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: leftFilledUncertainAbove, fill: dataSet.uncertainAboveFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
                     drawFilledPath(context: context, path: leftFilledUncertain, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
                     drawFilledPath(context: context, path: filledBelow, fill: dataSet.belowFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
                     drawFilledPath(context: context, path: filledAbove, fill: dataSet.fill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
                     drawFilledPath(context: context, path: rightFilledUncertain, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
-                    drawFilledPath(context: context, path: rightFilledUncertainAbove, fill: dataSet.uncertainFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
+                    drawFilledPath(context: context, path: rightFilledUncertainAbove, fill: dataSet.uncertainAboveFill!, fillAlpha: dataSet.fillAlpha, transformer: trans)
                 }
                 else
                 {
@@ -464,10 +464,11 @@ open class GenericPriceLineChartRenderer: LineChartRenderer {
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     } else if ePrev.y < fillMin {
-                        let a = (eNext.y - e.y) / (eNext.x - e.x)
-                        let b = e.y - (a * e.x)
-                        let xValue = (fillMin - b) / a
+                        let a = (e.y - ePrev.y) / (e.x - ePrev.x)
+                        let b = ePrev.y - (a * ePrev.x)
+                        let xValue = abs((fillMin - b) / a)
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
                         continue
                     }
                 } else {
@@ -514,10 +515,11 @@ open class GenericPriceLineChartRenderer: LineChartRenderer {
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
                         continue
                     } else if ePrev.y > fillMin {
-                        let a = (eNext.y - e.y) / (eNext.x - e.x)
-                        let b = e.y - (a * e.x)
-                        let xValue = (fillMin - b) / a
+                        let a = (e.y - ePrev.y) / (e.x - ePrev.x)
+                        let b = ePrev.y - (a * ePrev.x)
+                        let xValue = abs((fillMin - b) / a)
                         filled.addLine(to: CGPoint(x: CGFloat(xValue), y: CGFloat(fillMin * phaseY)), transform: matrix)
+                        filled.addLine(to: CGPoint(x: CGFloat(e.x), y: CGFloat(e.y * phaseY)), transform: matrix)
                         continue
                     }
                 } else {
